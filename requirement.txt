@@ -1,0 +1,9 @@
+pandas
+numpy
+scikit-learn
+yfinance
+langchain
+langchain-community
+fastapi
+uvicorn
+pydantic
