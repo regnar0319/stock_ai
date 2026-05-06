@@ -7,13 +7,18 @@ import streamlit as st
 st.set_page_config(page_title="AI Stock Analyst", layout="wide")
 st.title("AI Stock Analyst")
 
-
+market = st.selectbox("Select Market", ["US", "India", "UK", "Japan"])
+def format_ticker(ticker, market):
+    if market == "India":
+        return ticker + ".NS"
+    elif market == "UK":
+        return ticker + ".L"
+    elif market == "Japan":
+        return ticker + ".T"
+    return ticker
 
 ticker=st.text_input("Enter stock ticker(AAPL,TSLA,MSFT...etc): ").upper()
 
-if st.button("Test Button"):
-    st.write("Button clicked ✅")
-    st.write("Ticker:", ticker)
 
 if  st.button("Analyze"):
     df=load_stock_data(ticker)
@@ -33,14 +38,14 @@ if  st.button("Analyze"):
 
     st.subheader(f"Prediction for {ticker}: {direction}")
 
+    
     chain=get_chain()
-
     question = st.text_area("Ask something about this stock")
 
 
 if st.button("Explain Prediction"):
             
-
+        
         response = chain.invoke({
             "question": question,
             "direction": direction,

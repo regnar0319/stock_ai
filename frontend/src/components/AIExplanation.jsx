@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Card, CardHeader, CardTitle } from "./ui/Card";
 import { Bot, Send, Sparkles } from "lucide-react";
 import { Spinner } from "./ui/Spinner";
@@ -21,6 +21,7 @@ export function AIExplanation({ ticker, isAnalyzed }) {
       const response = await explainStock(ticker, question);
       setExplanation(response);
     } catch (err) {
+      console.error(err);
       setError("Failed to get explanation. Please try again.");
     } finally {
       setIsLoading(false);

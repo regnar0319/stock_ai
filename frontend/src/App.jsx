@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { StockInput } from "./components/StockInput";
 import { PredictionCard } from "./components/PredictionCard";
 import { StockChart } from "./components/StockChart";

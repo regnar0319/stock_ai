@@ -1,8 +1,10 @@
 const API_BASE = "http://localhost:8000";
 
-export async function analyzeStock(ticker) {
-  if (!ticker) {
-    throw new Error("Ticker is required");
+export async function analyzeStock(tickerData) {
+  const { ticker, market } = tickerData;
+
+  if (!ticker || !market) {
+    throw new Error("Ticker and market are required");
   }
 
   const response = await fetch(`${API_BASE}/analyze`, {
@@ -10,7 +12,7 @@ export async function analyzeStock(ticker) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ ticker: ticker.toUpperCase() }),
+    body: JSON.stringify({ ticker: ticker.toUpperCase(), market }),
   });
 
   if (!response.ok) {

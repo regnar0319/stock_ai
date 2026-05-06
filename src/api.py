@@ -9,26 +9,59 @@ import logging
 
 app = FastAPI(title="AI Stock Analyst API")
 
+# Configure CORS for development and production
+allowed_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+# Add production origins if environment variable is set
+import os
+if "RENDER_EXTERNAL_URL" in os.environ:
+    frontend_url = os.environ.get("RENDER_EXTERNAL_URL", "").replace(":8000", ":3000")
+    if frontend_url:
+        allowed_origins.append(frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+def format_ticker(ticker: str, market: str) -> str:
+    """Format ticker based on market."""
+    if market == "India":
+        return ticker + ".NS"
+    elif market == "UK":
+        return ticker + ".L"
+    elif market == "Japan":
+        return ticker + ".T"
+    return ticker
+
 class AnalyzeRequest(BaseModel):
     ticker: str
+    market: str = "US"
 
 class ExplainRequest(BaseModel):
     ticker: str
     question: str
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Render monitoring"""
+    return {"status": "healthy", "service": "AI Stock Analyst API"}
+
 @app.post("/analyze")
 async def analyze_stock(req: AnalyzeRequest):
     ticker = req.ticker.upper()
+    market = req.market
+    formatted_ticker = format_ticker(ticker, market)
     try:
-        df = load_stock_data(ticker)
+        df = load_stock_data(formatted_ticker)
         if df.empty:
             raise HTTPException(status_code=404, detail="Stock data not found.")
             
@@ -57,7 +90,8 @@ async def analyze_stock(req: AnalyzeRequest):
             })
             
         return {
-            "ticker": ticker,
+            "ticker": formatted_ticker,
+            "market": market,
             "prediction": direction,
             "indicators": {
                 "rsi": round(float(latest['rsi']), 2),
@@ -68,14 +102,17 @@ async def analyze_stock(req: AnalyzeRequest):
             "chartData": chart_data
         }
     except Exception as e:
-        logging.error(f"Error analyzing {ticker}: {e}")
+        logging.error(f"Error analyzing {formatted_ticker}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/explain")
 async def explain_stock(req: ExplainRequest):
     ticker = req.ticker.upper()
+    # For explain, we'll use US market by default or could extract from session
+    market = "US"
+    formatted_ticker = format_ticker(ticker, market)
     try:
-        df = load_stock_data(ticker)
+        df = load_stock_data(formatted_ticker)
         df = add_features(df)
         
         features = ['Open', 'High', 'Low', 'Close', 'returns', 'rsi', 'ma_10', 'ma_50', 'volatility']
@@ -100,5 +137,5 @@ async def explain_stock(req: ExplainRequest):
         
         return {"explanation": response}
     except Exception as e:
-        logging.error(f"Error explaining {ticker}: {e}")
+        logging.error(f"Error explaining {formatted_ticker}: {e}")
         raise HTTPException(status_code=500, detail=str(e))

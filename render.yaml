@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: ai-stock-analyst
+    env: python
+    plan: free
+    buildCommand: pip install -r src/requirements.txt
+    startCommand: python src/webapp.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11

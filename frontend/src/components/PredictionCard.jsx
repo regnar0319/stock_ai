@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, CardHeader, CardTitle } from "./ui/Card";
 import { TrendingUp, TrendingDown, Activity, DollarSign, Target } from "lucide-react";
 
@@ -13,34 +12,37 @@ export function PredictionCard({ data }) {
     <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Prediction for {data.ticker}</span>
+          <div className="flex flex-col">
+            <span>Prediction for {data.ticker}</span>
+            {data.market && <span className="text-xs text-slate-400 font-normal mt-1">Market: {data.market}</span>}
+          </div>
           <span className={`flex items-center gap-2 px-3 py-1 rounded-full border ${predictionColor} font-bold`}>
             {data.prediction} <PredictionIcon size={20} />
           </span>
         </CardTitle>
       </CardHeader>
-      
+
       <div className="flex-1 grid grid-cols-2 gap-4 mt-2">
-        <IndicatorBox 
+        <IndicatorBox
           icon={<Activity size={18} />}
-          label="RSI (14)" 
-          value={data.indicators.rsi} 
+          label="RSI (14)"
+          value={data.indicators.rsi}
           subtext={data.indicators.rsi > 70 ? "Overbought" : data.indicators.rsi < 30 ? "Oversold" : "Neutral"}
         />
-        <IndicatorBox 
+        <IndicatorBox
           icon={<DollarSign size={18} />}
-          label="Returns" 
+          label="Returns"
           value={data.indicators.returns}
           valueColor={parseFloat(data.indicators.returns) >= 0 ? "text-success" : "text-danger"}
         />
-        <IndicatorBox 
+        <IndicatorBox
           icon={<Target size={18} />}
-          label="MA (10)" 
+          label="MA (10)"
           value={`$${data.indicators.ma10}`}
         />
-        <IndicatorBox 
+        <IndicatorBox
           icon={<Target size={18} />}
-          label="MA (50)" 
+          label="MA (50)"
           value={`$${data.indicators.ma50}`}
         />
       </div>
