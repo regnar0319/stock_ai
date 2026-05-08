@@ -144,7 +144,16 @@ async def explain_stock(req: ExplainRequest):
         logging.error(f"Error explaining {formatted_ticker}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Serve frontend static files
+# Serve frontend - mount AFTER all API routes
 frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
 if frontend_dist.exists():
-    app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="static")
+    app.mount("/assets", StaticFiles(directory=str(frontend_dist / "assets")), name="assets")
+
+@app.get("/{full_path:path}")
+async def catch_all(full_path: str):
+    """Serve index.html for SPA routing, fallback for missing routes"""
+    if frontend_dist.exists():
+        index_file = frontend_dist / "index.html"
+        if index_file.exists():
+            return FileResponse(index_file)
+    return {"detail": "Frontend not available"}
