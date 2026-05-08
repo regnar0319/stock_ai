@@ -1,4 +1,5 @@
-const API_BASE = "http://localhost:8000";
+// In production, use relative path; in development, use localhost
+const API_BASE = import.meta.env.MODE === 'production' ? '' : "http://localhost:8000";
 
 export async function analyzeStock(tickerData) {
   const { ticker, market } = tickerData;

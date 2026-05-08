@@ -1,11 +1,15 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from .data_loader import load_stock_data
 from .features import add_features
 from .model import train_model
 from .llm import get_chain
 import logging
+import os
+from pathlib import Path
 
 app = FastAPI(title="AI Stock Analyst API")
 
@@ -139,3 +143,8 @@ async def explain_stock(req: ExplainRequest):
     except Exception as e:
         logging.error(f"Error explaining {formatted_ticker}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# Serve frontend static files
+frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
+if frontend_dist.exists():
+    app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="static")
