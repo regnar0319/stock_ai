@@ -5,9 +5,16 @@ from langchain_core.output_parsers import StrOutputParser
 
 def get_chain():
     """Return a LangChain chain using Google Gemini for stock analysis explanations."""
+    api_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError(
+            "No Google API key found. Set the GOOGLE_API_KEY or GEMINI_API_KEY "
+            "environment variable on Render (or in your .env file locally)."
+        )
+
     llm = ChatGoogleGenerativeAI(
         model="gemini-2.0-flash",
-        google_api_key=os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY"),
+        google_api_key=api_key,
         temperature=0.7,
     )
 

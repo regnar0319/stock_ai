@@ -143,6 +143,10 @@ async def explain_stock(req: ExplainRequest):
         })
         
         return {"explanation": response}
+    except ValueError as e:
+        # Missing API key or other configuration error
+        logging.error(f"Configuration error for {formatted_ticker}: {e}")
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         logging.error(f"Error explaining {formatted_ticker}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
