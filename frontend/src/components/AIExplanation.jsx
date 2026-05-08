@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card, CardHeader, CardTitle } from "./ui/Card";
 import { Bot, Send, Sparkles } from "lucide-react";
 import { Spinner } from "./ui/Spinner";
 import { explainStock } from "../services/api";
@@ -16,7 +15,7 @@ export function AIExplanation({ ticker, isAnalyzed }) {
 
     setIsLoading(true);
     setError("");
-    
+
     try {
       const response = await explainStock(ticker, question);
       setExplanation(response);
@@ -28,51 +27,114 @@ export function AIExplanation({ ticker, isAnalyzed }) {
     }
   };
 
-  if (!isAnalyzed) {
-    return null;
-  }
+  if (!isAnalyzed) return null;
 
   return (
-    <Card className="mt-6 border-accent/30 shadow-accent/5">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Sparkles className="text-accent" size={20} />
-          <span>AI Analyst</span>
-        </CardTitle>
-      </CardHeader>
+    <div className="glass-card" style={{ padding: "28px" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
+        <div style={{
+          width: "36px", height: "36px", borderRadius: "10px",
+          background: "linear-gradient(135deg, rgba(168,85,247,0.2), rgba(99,102,241,0.2))",
+          border: "1px solid rgba(168,85,247,0.3)",
+          display: "flex", alignItems: "center", justifyContent: "center"
+        }}>
+          <Sparkles size={18} color="#a855f7" />
+        </div>
+        <div>
+          <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 700, color: "#e2e8f0" }}>
+            AI Analyst
+          </h3>
+          <p style={{ margin: 0, fontSize: "0.75rem", color: "#64748b" }}>
+            Ask anything about {ticker}
+          </p>
+        </div>
+      </div>
 
-      <div className="flex flex-col gap-4">
-        {explanation && (
-          <div className="flex gap-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700">
-            <div className="flex-shrink-0 mt-1">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
-                <Bot size={18} className="text-primary" />
-              </div>
-            </div>
-            <div className="flex-1 text-slate-200 text-sm leading-relaxed">
-              {explanation}
+      {/* Explanation bubble */}
+      {explanation && (
+        <div style={{
+          display: "flex", gap: "14px", padding: "16px 18px",
+          borderRadius: "14px", background: "rgba(10,15,30,0.6)",
+          border: "1px solid rgba(31,45,69,0.8)", marginBottom: "16px"
+        }}>
+          <div style={{ flexShrink: 0 }}>
+            <div style={{
+              width: "34px", height: "34px", borderRadius: "50%",
+              background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.3)",
+              display: "flex", alignItems: "center", justifyContent: "center"
+            }}>
+              <Bot size={18} color="#6366f1" />
             </div>
           </div>
-        )}
+          <div style={{
+            flex: 1, color: "#cbd5e1", fontSize: "0.9rem",
+            lineHeight: 1.7, whiteSpace: "pre-wrap"
+          }}>
+            {explanation}
+          </div>
+        </div>
+      )}
 
-        <form onSubmit={handleExplain} className="relative mt-2">
-          <textarea
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder={`Ask a question about ${ticker} (e.g., "Why is the RSI so high?")`}
-            className="w-full min-h-[100px] p-4 pr-14 text-sm text-slate-100 bg-slate-900 border border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none transition-all placeholder-slate-500"
-            disabled={isLoading}
-          />
-          <button
-            type="submit"
-            disabled={isLoading || !question.trim()}
-            className="absolute right-3 bottom-3 p-2 rounded-lg bg-primary hover:bg-blue-600 text-white disabled:opacity-50 disabled:hover:bg-primary transition-colors flex items-center justify-center"
-          >
-            {isLoading ? <Spinner size={18} className="text-white" /> : <Send size={18} />}
-          </button>
-        </form>
-        {error && <p className="text-sm text-danger mt-1">{error}</p>}
-      </div>
-    </Card>
+      {/* Question input */}
+      <form onSubmit={handleExplain} style={{ position: "relative" }}>
+        <textarea
+          id="ai-question-input"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              if (question.trim() && !isLoading) handleExplain(e);
+            }
+          }}
+          placeholder={`Ask a question about ${ticker} (e.g. "Why is the RSI high?")`}
+          disabled={isLoading}
+          style={{
+            width: "100%", minHeight: "100px", padding: "14px 52px 14px 16px",
+            background: "rgba(10,15,30,0.8)", border: "1px solid rgba(31,45,69,0.9)",
+            borderRadius: "14px", color: "#f1f5f9", fontSize: "0.9rem",
+            fontFamily: "inherit", outline: "none", resize: "none",
+            transition: "all 0.2s ease", boxSizing: "border-box"
+          }}
+          onFocus={e => {
+            e.target.style.borderColor = "#a855f7";
+            e.target.style.boxShadow = "0 0 0 3px rgba(168,85,247,0.12)";
+          }}
+          onBlur={e => {
+            e.target.style.borderColor = "rgba(31,45,69,0.9)";
+            e.target.style.boxShadow = "none";
+          }}
+        />
+        <button
+          id="ask-ai-btn"
+          type="submit"
+          disabled={isLoading || !question.trim()}
+          style={{
+            position: "absolute", right: "12px", bottom: "12px",
+            width: "36px", height: "36px", borderRadius: "10px",
+            background: isLoading || !question.trim()
+              ? "rgba(168,85,247,0.3)"
+              : "linear-gradient(135deg, #a855f7, #6366f1)",
+            border: "none", cursor: isLoading || !question.trim() ? "not-allowed" : "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#fff", transition: "all 0.2s ease",
+            boxShadow: isLoading || !question.trim() ? "none" : "0 4px 12px rgba(168,85,247,0.35)"
+          }}
+        >
+          {isLoading ? <Spinner size={16} /> : <Send size={16} />}
+        </button>
+      </form>
+
+      <p style={{ margin: "8px 0 0", fontSize: "0.72rem", color: "#475569" }}>
+        Press Enter to send · Shift+Enter for new line
+      </p>
+
+      {error && (
+        <p style={{ marginTop: "10px", color: "#f43f5e", fontSize: "0.825rem" }}>
+          ⚠ {error}
+        </p>
+      )}
+    </div>
   );
 }

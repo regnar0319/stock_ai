@@ -1,11 +1,11 @@
-import { cn } from "../../utils";
 import { Loader2 } from "lucide-react";
 
-export function Spinner({ className, size = 24 }) {
+export function Spinner({ size = 24, color = "#6366f1" }) {
   return (
     <Loader2
       size={size}
-      className={cn("animate-spin text-primary", className)}
+      color={color}
+      style={{ animation: "spin 1s linear infinite", display: "block" }}
     />
   );
 }

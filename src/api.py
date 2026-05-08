@@ -22,7 +22,6 @@ allowed_origins = [
 ]
 
 # Add production origins if environment variable is set
-import os
 if "RENDER_EXTERNAL_URL" in os.environ:
     frontend_url = os.environ.get("RENDER_EXTERNAL_URL", "").replace(":8000", ":3000")
     if frontend_url:
@@ -86,10 +85,14 @@ async def analyze_stock(req: AnalyzeRequest):
         # Prepare chart data (last 30 days for example)
         last_30 = df.tail(30)
         chart_data = []
-        for _, row in last_30.iterrows():
-            date_str = str(row.get('Date', ''))
+        for idx, row in last_30.iterrows():
+            # After reset_index(), date is in 'Date' column; fallback to index
+            if 'Date' in row.index:
+                date_str = str(row['Date'])
+            else:
+                date_str = str(idx)
             chart_data.append({
-                "date": date_str.split(" ")[0],
+                "date": date_str.split(" ")[0].split("T")[0],
                 "price": round(float(row['Close']), 2)
             })
             

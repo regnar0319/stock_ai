@@ -8,10 +8,10 @@ export function StockInput({ onAnalyze, isLoading }) {
   const [error, setError] = useState("");
 
   const MARKETS = [
-    { label: "US", value: "US" },
-    { label: "India", value: "India" },
-    { label: "UK", value: "UK" },
-    { label: "Japan", value: "Japan" },
+    { label: "🇺🇸 US", value: "US" },
+    { label: "🇮🇳 India", value: "India" },
+    { label: "🇬🇧 UK", value: "UK" },
+    { label: "🇯🇵 Japan", value: "Japan" },
   ];
 
   const handleSubmit = (e) => {
@@ -22,9 +22,8 @@ export function StockInput({ onAnalyze, isLoading }) {
       setError("Please enter a stock ticker");
       return;
     }
-
-    if (!/^[A-Z]+$/.test(cleanTicker)) {
-      setError("Invalid ticker format. Use letters only.");
+    if (!/^[A-Z0-9.^-]+$/.test(cleanTicker)) {
+      setError("Invalid ticker format.");
       return;
     }
 
@@ -32,52 +31,138 @@ export function StockInput({ onAnalyze, isLoading }) {
     onAnalyze({ ticker: cleanTicker, market });
   };
 
+  const inputStyle = {
+    background: "rgba(10,15,30,0.8)",
+    border: "1px solid rgba(31,45,69,0.9)",
+    borderRadius: "12px",
+    color: "#f1f5f9",
+    padding: "14px 16px 14px 46px",
+    fontSize: "0.95rem",
+    outline: "none",
+    width: "100%",
+    fontFamily: "inherit",
+    transition: "all 0.2s ease",
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="w-full">
-      <div className="flex flex-col md:flex-row gap-3">
-        <div className="relative group flex-1">
-          <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
-            <Search size={20} />
+    <form onSubmit={handleSubmit} style={{ width: "100%" }}>
+      <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+
+        {/* Ticker input */}
+        <div style={{ position: "relative", flex: "1 1 200px" }}>
+          <div style={{
+            position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)",
+            color: "#475569", pointerEvents: "none", display: "flex", alignItems: "center"
+          }}>
+            <Search size={18} />
           </div>
           <input
+            id="ticker-input"
             type="text"
             value={ticker}
             onChange={(e) => {
               setTicker(e.target.value.toUpperCase());
               if (error) setError("");
             }}
-            className="block w-full p-4 pl-12 text-sm md:text-base text-slate-900 dark:text-slate-100 bg-white dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder-slate-400 dark:placeholder-slate-500 shadow-sm"
-            placeholder="Enter stock ticker (e.g. AAPL, TSLA)..."
+            style={inputStyle}
+            placeholder="Enter ticker (e.g. AAPL, TSLA)..."
             disabled={isLoading}
+            onFocus={e => {
+              e.target.style.borderColor = "#6366f1";
+              e.target.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.15)";
+            }}
+            onBlur={e => {
+              e.target.style.borderColor = "rgba(31,45,69,0.9)";
+              e.target.style.boxShadow = "none";
+            }}
           />
         </div>
 
-        <div className="relative md:w-48">
-          <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
-            <Globe size={18} />
+        {/* Market selector */}
+        <div style={{ position: "relative", flex: "0 0 150px" }}>
+          <div style={{
+            position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)",
+            color: "#475569", pointerEvents: "none", display: "flex", alignItems: "center"
+          }}>
+            <Globe size={16} />
           </div>
           <select
+            id="market-select"
             value={market}
             onChange={(e) => setMarket(e.target.value)}
             disabled={isLoading}
-            className="block w-full p-4 pl-11 text-sm md:text-base text-slate-900 dark:text-slate-100 bg-white dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all shadow-sm appearance-none cursor-pointer"
+            style={{
+              ...inputStyle,
+              padding: "14px 12px 14px 36px",
+              appearance: "none",
+              cursor: "pointer",
+            }}
+            onFocus={e => {
+              e.target.style.borderColor = "#6366f1";
+              e.target.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.15)";
+            }}
+            onBlur={e => {
+              e.target.style.borderColor = "rgba(31,45,69,0.9)";
+              e.target.style.boxShadow = "none";
+            }}
           >
             {MARKETS.map(m => (
-              <option key={m.label} value={m.value}>{m.label}</option>
+              <option key={m.value} value={m.value} style={{ background: "#111827" }}>
+                {m.label}
+              </option>
             ))}
           </select>
         </div>
 
+        {/* Analyze button */}
         <button
+          id="analyze-btn"
           type="submit"
           disabled={isLoading || !ticker.trim()}
-          className="px-6 md:px-8 py-4 text-white bg-primary hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-xl text-sm transition-colors disabled:opacity-70 flex items-center justify-center gap-2 shadow-sm"
+          style={{
+            flex: "0 0 auto",
+            padding: "14px 28px",
+            background: isLoading || !ticker.trim()
+              ? "rgba(99,102,241,0.4)"
+              : "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+            color: "#fff",
+            border: "none",
+            borderRadius: "12px",
+            fontWeight: 700,
+            fontSize: "0.9rem",
+            cursor: isLoading || !ticker.trim() ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            boxShadow: isLoading || !ticker.trim() ? "none" : "0 4px 16px rgba(99,102,241,0.4)",
+            transition: "all 0.2s ease",
+            fontFamily: "inherit",
+            whiteSpace: "nowrap",
+          }}
+          onMouseEnter={e => {
+            if (!isLoading && ticker.trim()) {
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow = "0 6px 24px rgba(99,102,241,0.6)";
+            }
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = isLoading || !ticker.trim() ? "none" : "0 4px 16px rgba(99,102,241,0.4)";
+          }}
         >
-          {isLoading ? <Spinner size={18} className="text-white" /> : null}
+          {isLoading ? <Spinner size={18} /> : null}
           <span>{isLoading ? "Analyzing..." : "Analyze"}</span>
         </button>
       </div>
-      {error && <p className="mt-2 text-sm text-danger animate-in fade-in slide-in-from-top-1">{error}</p>}
+
+      {error && (
+        <p style={{
+          marginTop: "10px", color: "#f43f5e", fontSize: "0.825rem",
+          display: "flex", alignItems: "center", gap: "6px"
+        }}>
+          ⚠ {error}
+        </p>
+      )}
     </form>
   );
 }
