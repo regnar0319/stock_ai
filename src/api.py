@@ -64,9 +64,11 @@ async def analyze_stock(req: AnalyzeRequest):
     market = req.market
     formatted_ticker = format_ticker(ticker, market)
     try:
+        logging.info(f"Analyzing stock: {formatted_ticker} in market: {market}")
         df = load_stock_data(formatted_ticker)
         if df.empty:
-            raise HTTPException(status_code=404, detail="Stock data not found.")
+            logging.warning(f"No data available for ticker: {formatted_ticker}")
+            raise HTTPException(status_code=404, detail=f"Stock data not found for {formatted_ticker}. Please verify the ticker symbol and market.")
             
         df = add_features(df)
         
