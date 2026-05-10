@@ -12,9 +12,17 @@ def load_stock_data(ticker):
         # Suppress progress bar and use shorter timeout for Render
         df = tk.history(period="2y", interval="1d", progress=False)
         
+        logger.info(f"Retrieved {len(df)} rows for {ticker}, columns: {list(df.columns)}")
+        
         if df.empty:
             logger.warning(f"No data returned for ticker: {ticker}")
-            return df
+            return pd.DataFrame()
+        
+        # Ensure required columns exist
+        required_cols = ['Open', 'High', 'Low', 'Close']
+        if not all(col in df.columns for col in required_cols):
+            logger.error(f"Missing required columns. Got: {list(df.columns)}")
+            return pd.DataFrame()
         
         logger.info(f"Successfully fetched {len(df)} rows for {ticker}")
         # Normalize column names (strip whitespace, ensure standard casing)
