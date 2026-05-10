@@ -8,8 +8,9 @@ def load_stock_data(ticker):
     """Load 2 years of daily stock data using Ticker.history() for compatibility with all yfinance versions."""
     try:
         logger.info(f"Fetching data for ticker: {ticker}")
-        tk = yf.Ticker(ticker)
-        df = tk.history(period="2y", interval="1d")
+        tk = yf.Ticker(ticker, ignore_tz=True)
+        # Suppress progress bar and use shorter timeout for Render
+        df = tk.history(period="2y", interval="1d", progress=False)
         
         if df.empty:
             logger.warning(f"No data returned for ticker: {ticker}")
@@ -21,7 +22,7 @@ def load_stock_data(ticker):
         df = df.reset_index()
         return df
     except Exception as e:
-        logger.error(f"Error fetching data for {ticker}: {str(e)}")
+        logger.error(f"Error fetching data for {ticker}: {type(e).__name__}: {str(e)}")
         # Return empty DataFrame to trigger 404 in API
         return pd.DataFrame()
 

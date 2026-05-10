@@ -110,9 +110,12 @@ async def analyze_stock(req: AnalyzeRequest):
             },
             "chartData": chart_data
         }
+    except ValueError as e:
+        logging.error(f"Configuration error for {formatted_ticker}: {e}")
+        raise HTTPException(status_code=503, detail="Service configuration error. Please try again later.")
     except Exception as e:
-        logging.error(f"Error analyzing {formatted_ticker}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error(f"Error analyzing {formatted_ticker}: {type(e).__name__}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to analyze {formatted_ticker}. {str(e)}")
 
 @app.post("/explain")
 async def explain_stock(req: ExplainRequest):
