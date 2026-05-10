@@ -5,12 +5,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 def load_stock_data(ticker):
-    """Load 2 years of daily stock data using Ticker.history() for compatibility with all yfinance versions."""
+    """Load 2 years of daily stock data using Ticker.history()."""
     try:
         logger.info(f"Fetching data for ticker: {ticker}")
-        tk = yf.Ticker(ticker, ignore_tz=True)
-        # Suppress progress bar and use shorter timeout for Render
-        df = tk.history(period="2y", interval="1d", progress=False)
+        tk = yf.Ticker(ticker)
+        # Fetch 2 years of daily data
+        df = tk.history(period="2y", interval="1d")
         
         logger.info(f"Retrieved {len(df)} rows for {ticker}, columns: {list(df.columns)}")
         
