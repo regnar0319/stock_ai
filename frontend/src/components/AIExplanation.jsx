@@ -3,7 +3,7 @@ import { Bot, Send, Sparkles } from "lucide-react";
 import { Spinner } from "./ui/Spinner";
 import { explainStock } from "../services/api";
 
-export function AIExplanation({ ticker, isAnalyzed }) {
+export function AIExplanation({ ticker, market, isAnalyzed }) {
   const [question, setQuestion] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [explanation, setExplanation] = useState("");
@@ -17,7 +17,7 @@ export function AIExplanation({ ticker, isAnalyzed }) {
     setError("");
 
     try {
-      const response = await explainStock(ticker, question);
+      const response = await explainStock(ticker, market, question);
       setExplanation(response);
     } catch (err) {
       console.error(err);
