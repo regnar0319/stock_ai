@@ -117,7 +117,11 @@ function App() {
         {/* ── AI Explanation ─────────────────────────────────────── */}
         {stockData && (
           <div className="animate-in delay-300" style={{ marginTop: "24px" }}>
-            <AIExplanation ticker={stockData.ticker} market={stockData.market} isAnalyzed={!!stockData} />
+            <AIExplanation
+              ticker={stockData.ticker}
+              market={stockData.market}
+              isAnalyzed={!!stockData}
+            />
           </div>
         )}
       </div>
